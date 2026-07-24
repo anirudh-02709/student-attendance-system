@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mark Attendance</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">Attendance<span>System</span></div>
+      <nav class="topnav" aria-label="Primary navigation">
+        <button class="btn secondary" onclick="logout()">Logout</button>
+        <a class="nav-link" href="index.html">Dashboard</a>
+        <a class="nav-link" href="students.html">Manage Students</a>
+        <a class="nav-link" href="attendance.html">Mark Attendance</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="page-header">
+        <div>
+          <p class="eyebrow">Attendance</p>
+          <h1>Mark Daily Attendance</h1>
+        </div>
+      </section>
+
+      <section class="card form-card">
+        <form id="attendanceForm" class="form-grid">
+          <label>
+            <span>Select Date</span>
+            <input id="attendanceDate" name="date" type="date" required />
+          </label>
+          <div class="field full-width">
+            <button class="btn primary" type="submit">Submit Attendance</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card table-card">
+        <h2>Students</h2>
+        <ul id="attendanceList" class="student-list"></ul>
+        <p id="statusMessage" class="status-message" hidden></p>
+      </section>
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script>
+      requireAuth();
+    </script>
+    <script src="js/logout.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/attendance.js"></script>
+  </body>
+</html>

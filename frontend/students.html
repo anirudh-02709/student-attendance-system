@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Students</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">Attendance<span>System</span></div>
+      <nav class="topnav" aria-label="Primary navigation">
+        <button class="btn secondary" onclick="logout()">Logout</button>
+        <a class="nav-link" href="index.html">Dashboard</a>
+        <a class="nav-link" href="students.html">Manage Students</a>
+        <a class="nav-link" href="attendance.html">Mark Attendance</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="page-header">
+        <div>
+          <p class="eyebrow">Management</p>
+          <h1>Students</h1>
+        </div>
+      </section>
+
+      <section class="card form-card">
+        <h2>Add Student</h2>
+        <form id="studentForm" class="form-grid">
+          <label>
+            <span>Name</span>
+            <input name="name" placeholder="Enter full name" required />
+          </label>
+          <label>
+            <span>USN</span>
+            <input name="usn" placeholder="e.g. 1AH22CS001" required />
+          </label>
+          <label>
+            <span>Branch</span>
+            <input name="branch" placeholder="e.g. CSE" required />
+          </label>
+          <label>
+            <span>Year</span>
+            <input
+              name="year"
+              type="number"
+              min="1"
+              max="4"
+              placeholder="1"
+              required
+            />
+          </label>
+          <div class="field full-width">
+            <button class="btn primary" type="submit">Add Student</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card table-card">
+        <h2>Student List</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>USN</th>
+                <th>Branch</th>
+                <th>Year</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="studentTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script>
+      requireAuth();
+    </script>
+    <script src="js/logout.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/students.js"></script>
+  </body>
+</html>

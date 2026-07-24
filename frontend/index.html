@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Attendance Dashboard</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">Attendance<span>System</span></div>
+      <nav class="topnav" aria-label="Primary navigation">
+        <button class="btn secondary" onclick="logout()">Logout</button>
+        <a class="nav-link" href="index.html">Dashboard</a>
+        <a class="nav-link" href="students.html">Manage Students</a>
+        <a class="nav-link" href="attendance.html">Mark Attendance</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="page-header">
+        <div>
+          <p class="eyebrow">Overview</p>
+          <h1>Student Attendance Dashboard</h1>
+        </div>
+      </section>
+
+      <section class="stats-grid" aria-label="Attendance summary cards">
+        <article class="card metric-card">
+          <p class="metric-label">Total Students</p>
+          <h2 data-total-students>0</h2>
+        </article>
+        <article class="card metric-card">
+          <p class="metric-label">Present Today</p>
+          <h2 data-present-today>0</h2>
+        </article>
+        <article class="card metric-card">
+          <p class="metric-label">Attendance %</p>
+          <h2 data-attendance-percent>0%</h2>
+        </article>
+      </section>
+
+      <section class="card actions-card">
+        <h2>Quick Actions</h2>
+        <div class="button-row">
+          <a class="btn primary" href="students.html">Manage Students</a>
+          <a class="btn secondary" href="attendance.html">Mark Attendance</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script>
+      requireAuth();
+    </script>
+    <script src="js/logout.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/index.js"></script>
+  </body>
+</html>
