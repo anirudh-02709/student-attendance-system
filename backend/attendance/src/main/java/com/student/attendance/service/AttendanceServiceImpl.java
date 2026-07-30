@@ -1,9 +1,17 @@
 package com.student.attendance.service;
 
+import com.student.attendance.dto.AttendanceLocationRequest;
+import com.student.attendance.exception.AttendanceNotFoundException;
+import com.student.attendance.exception.DuplicateAttendanceException;
+import com.student.attendance.exception.InvalidLocationException;
 import com.student.attendance.model.Attendance;
+import com.student.attendance.model.AttendanceStatus;
 import com.student.attendance.repository.AttendanceRepository;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -11,13 +19,83 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
 
+    // Replace with your college coordinates
+    private static final double COLLEGE_LATITUDE = 12.971100;
+    private static final double COLLEGE_LONGITUDE = 77.593700;
+
+    // Allowed radius in meters
+    private static final double ALLOWED_RADIUS = 100.0;
+
     public AttendanceServiceImpl(AttendanceRepository attendanceRepository) {
         this.attendanceRepository = attendanceRepository;
     }
 
     @Override
-    public Attendance markAttendance(Attendance attendance) {
-        return attendanceRepository.save(attendance);
+    public Attendance markAttendance(String studentUsn, AttendanceLocationRequest request, boolean requiresLocationVerification) {
+        Attendance attendance = new Attendance();
+        attendance.setStudentUsn(studentUsn);
+        attendance.setDate(
+                request.getDate() != null
+                        ? request.getDate()
+                        : LocalDate.now()
+        );
+        attendance.setMarkedAt(LocalDateTime.now());
+        attendance.setStatus(request.getStatus() != null ? request.getStatus() : AttendanceStatus.Present);
+        attendance.setLatitude(request.getLatitude());
+        attendance.setLongitude(request.getLongitude());
+
+        String duplicateMessage = "Attendance has already been marked for this student on this date.";
+
+        if (attendanceRepository.findByStudentUsnAndDate(
+                attendance.getStudentUsn(),
+                attendance.getDate()
+        ).isPresent()) {
+            throw new DuplicateAttendanceException(duplicateMessage);
+        }
+
+        if (requiresLocationVerification) {
+            verifyLocation(attendance);
+        }
+
+        try {
+            return attendanceRepository.save(attendance);
+        } catch (DuplicateKeyException exception) {
+            throw new DuplicateAttendanceException(duplicateMessage);
+        }
+    }
+
+    private void verifyLocation(Attendance attendance) {
+        if (attendance.getLatitude() == null || attendance.getLongitude() == null) {
+            throw new InvalidLocationException("Location data is missing.");
+        }
+
+        double distance = calculateDistance(
+                attendance.getLatitude(),
+                attendance.getLongitude(),
+                COLLEGE_LATITUDE,
+                COLLEGE_LONGITUDE
+        );
+
+        if (distance > ALLOWED_RADIUS) {
+            throw new InvalidLocationException("You are outside the college campus.");
+        }
+    }
+
+    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        final int earthRadius = 6371000; // meters
+
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1))
+                * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2)
+                * Math.sin(dLon / 2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return earthRadius * c;
     }
 
     @Override
@@ -26,35 +104,36 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     @Override
+    public List<Attendance> getAttendanceByStudentUsn(String studentUsn) {
+        return attendanceRepository.findByStudentUsnOrderByDateDesc(studentUsn);
+    }
+
+    @Override
     public Attendance getAttendanceById(String id) {
-        return attendanceRepository.findById(id).orElse(null);
+        return attendanceRepository.findById(id)
+                .orElseThrow(() -> new AttendanceNotFoundException("Attendance not found with id: " + id));
     }
 
     @Override
     public Attendance updateAttendance(String id, Attendance updatedAttendance) {
+        Attendance existingAttendance = attendanceRepository.findById(id)
+                .orElseThrow(() -> new AttendanceNotFoundException("Attendance not found with id: " + id));
 
-        Attendance existingAttendance = attendanceRepository.findById(id).orElse(null);
+        existingAttendance.setStudentUsn(updatedAttendance.getStudentUsn());
+        existingAttendance.setDate(updatedAttendance.getDate());
+        existingAttendance.setMarkedAt(updatedAttendance.getMarkedAt());
+        existingAttendance.setStatus(updatedAttendance.getStatus());
+        existingAttendance.setLatitude(updatedAttendance.getLatitude());
+        existingAttendance.setLongitude(updatedAttendance.getLongitude());
 
-        if (existingAttendance != null) {
-
-            existingAttendance.setStudentUsn(updatedAttendance.getStudentUsn());
-            existingAttendance.setDate(updatedAttendance.getDate());
-            existingAttendance.setMarkedAt(updatedAttendance.getMarkedAt());
-            existingAttendance.setStatus(updatedAttendance.getStatus());
-
-            return attendanceRepository.save(existingAttendance);
-        }
-
-        return null;
+        return attendanceRepository.save(existingAttendance);
     }
 
     @Override
     public void deleteAttendance(String id) {
+        Attendance attendance = attendanceRepository.findById(id)
+                .orElseThrow(() -> new AttendanceNotFoundException("Attendance not found with id: " + id));
 
-        Attendance attendance = attendanceRepository.findById(id).orElse(null);
-
-        if (attendance != null) {
-            attendanceRepository.delete(attendance);
-        }
+        attendanceRepository.delete(attendance);
     }
 }

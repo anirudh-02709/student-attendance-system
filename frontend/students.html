@@ -51,6 +51,15 @@
               required
             />
           </label>
+          <label>
+            <span>Password</span>
+            <input
+              name="password"
+              type="password"
+              placeholder="Enter student password"
+              required
+            />
+          </label>
           <div class="field full-width">
             <button class="btn primary" type="submit">Add Student</button>
           </div>
@@ -78,7 +87,7 @@
 
     <script src="js/auth.js"></script>
     <script>
-      requireAuth();
+      requireAuth("FACULTY");
     </script>
     <script src="js/logout.js"></script>
     <script src="js/api.js"></script>

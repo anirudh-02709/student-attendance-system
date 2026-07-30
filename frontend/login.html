@@ -4,18 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faculty Login</title>
+    <title>Login</title>
 
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
-    <h1>Faculty Login</h1>
+    <h1 id="loginTitle">Faculty Login</h1>
 
     <form id="loginForm">
 
-        <label for="username">Username</label>
+        <label for="loginMode">Login Type</label>
+        <select id="loginMode">
+            <option value="faculty">Faculty Login</option>
+            <option value="student">Student Login</option>
+        </select>
+
+        <br><br>
+
+        <label for="username" id="usernameLabel">Username</label>
         <input
             type="text"
             id="username"

@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.student.attendance.model.Faculty;
+import com.student.attendance.model.Role;
 import com.student.attendance.repository.FacultyRepository;
 import com.student.attendance.service.FacultyService;
 
@@ -19,7 +20,7 @@ public class FacultyDataInitializer {
                                                 @Value("${app.faculty.initial-password}") String password) {
         return args -> {
             if (facultyRepository.count() == 0) {
-                facultyService.register(new Faculty(null, "System Administrator", username, password, "FACULTY"));
+                facultyService.register(new Faculty(null, "System Administrator", username, password, Role.FACULTY));
             }
         };
     }

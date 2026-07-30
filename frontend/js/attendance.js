@@ -35,15 +35,19 @@ attendanceForm?.addEventListener("submit", async (event) => {
 
   if (!attendanceList) return;
 
-  const date = attendanceDateInput?.value || new Date().toISOString().slice(0, 10);
+  const date =
+    attendanceDateInput?.value || new Date().toISOString().slice(0, 10);
   const markedAt = new Date().toISOString();
+
   const students = Array.from(attendanceList.querySelectorAll("li"));
 
   try {
     await Promise.all(
       students.map((item) => {
         const studentUsn = item.dataset.usn;
-        const status = item.querySelector("select")?.value || "Present";
+        const status =
+          item.querySelector("select")?.value || "Present";
+
         return markAttendance({
           studentUsn,
           date,
@@ -57,7 +61,11 @@ attendanceForm?.addEventListener("submit", async (event) => {
     statusMessage.textContent = "Attendance saved successfully.";
   } catch (error) {
     statusMessage.hidden = false;
-    statusMessage.textContent = "Unable to save attendance. Please try again.";
+
+    // Display the message returned by the backend
+    statusMessage.textContent =
+      error.message || "Unable to save attendance. Please try again.";
+
     console.error("Failed to save attendance.", error);
   }
 });

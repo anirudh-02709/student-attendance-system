@@ -1,5 +1,6 @@
 package com.student.attendance.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -21,5 +22,10 @@ public class Student {
     private String branch;
 
     private int year;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;
+
+    private Role role;
 
 }

@@ -38,6 +38,7 @@ studentForm?.addEventListener("submit", async (event) => {
     usn: formData.get("usn"),
     branch: formData.get("branch"),
     year: Number(formData.get("year")),
+    password: formData.get("password"),
   };
 
   try {

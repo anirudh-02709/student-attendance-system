@@ -1,7 +1,10 @@
 package com.student.attendance.service;
 
+import com.student.attendance.exception.StudentNotFoundException;
+import com.student.attendance.model.Role;
 import com.student.attendance.model.Student;
 import com.student.attendance.repository.StudentRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service; //@Service annotation
 
 import java.util.List;
@@ -10,13 +13,16 @@ import java.util.List;
 public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public StudentServiceImpl(StudentRepository studentRepository) {
+    public StudentServiceImpl(StudentRepository studentRepository, PasswordEncoder passwordEncoder) {
         this.studentRepository = studentRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public Student addStudent(Student student) {
+        prepareStudentCredentials(student);
         return studentRepository.save(student);
     }
 
@@ -27,32 +33,43 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student getStudentByUsn(String usn) {
-        return studentRepository.findById(usn).orElse(null);
+        return studentRepository.findById(usn)
+                .orElseThrow(() -> new StudentNotFoundException("Student not found with USN: " + usn));
     }
 
     @Override
     public Student updateStudent(String usn, Student updatedStudent) {
 
-        Student existingStudent = studentRepository.findById(usn).orElse(null);
+        Student existingStudent = studentRepository.findById(usn)
+                .orElseThrow(() -> new StudentNotFoundException("Student not found with USN: " + usn));
 
-        if (existingStudent != null) {
-            existingStudent.setName(updatedStudent.getName());
-            existingStudent.setBranch(updatedStudent.getBranch());
-            existingStudent.setYear(updatedStudent.getYear());
+        existingStudent.setName(updatedStudent.getName());
+        existingStudent.setBranch(updatedStudent.getBranch());
+        existingStudent.setYear(updatedStudent.getYear());
 
-            return studentRepository.save(existingStudent);
+        if (updatedStudent.getPassword() != null && !updatedStudent.getPassword().isBlank()) {
+            existingStudent.setPassword(passwordEncoder.encode(updatedStudent.getPassword()));
         }
 
-        return null;
+        existingStudent.setRole(Role.STUDENT);
+
+        return studentRepository.save(existingStudent);
     }
 
     @Override
     public void deleteStudent(String usn) {
 
-        Student student = studentRepository.findById(usn).orElse(null);
+        Student student = studentRepository.findById(usn)
+                .orElseThrow(() -> new StudentNotFoundException("Student not found with USN: " + usn));
 
-        if (student != null) {
-            studentRepository.delete(student);
+        studentRepository.delete(student);
+    }
+
+    private void prepareStudentCredentials(Student student) {
+        if (student.getPassword() != null && !student.getPassword().isBlank()) {
+            student.setPassword(passwordEncoder.encode(student.getPassword()));
         }
+
+        student.setRole(Role.STUDENT);
     }
 }

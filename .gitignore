@@ -1,20 +1,59 @@
+### Java / Maven ###
 HELP.md
 target/
-.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Frontend / Node ###
+node_modules/
+dist/
+build/
+coverage/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### Secrets / Local Config ###
+backend/attendance/src/main/resources/application.properties
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.crt
+*.cer
+*service-account*.json
+*service_account*.json
+firebase*.json
+*firebase*.json
+
+### Logs / Temp ###
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+
+### OS Files ###
+.DS_Store
+Thumbs.db
+desktop.ini
+
 ### STS ###
-.apt_generated
+.apt_generated/
 .classpath
 .factorypath
 .project
-.settings
+.settings/
 .springBeans
-.sts4-cache
+.sts4-cache/
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -22,12 +61,11 @@ target/
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
-/dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
 ### VS Code ###
 .vscode/
+
+### Local Tooling ###
+.codex/
