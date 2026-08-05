@@ -20,8 +20,8 @@ public class AttendanceServiceImpl implements AttendanceService {
     private final AttendanceRepository attendanceRepository;
 
     // Replace with your college coordinates
-    private static final double COLLEGE_LATITUDE = 12.971100;
-    private static final double COLLEGE_LONGITUDE = 77.593700;
+    private static final double COLLEGE_LATITUDE = 12.892763130939501;
+    private static final double COLLEGE_LONGITUDE = 77.60511508379179;
 
     // Allowed radius in meters
     private static final double ALLOWED_RADIUS = 100.0;
@@ -101,6 +101,11 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     public List<Attendance> getAllAttendance() {
         return attendanceRepository.findAll();
+    }
+
+    @Override
+    public List<Attendance> getAttendanceByDate(LocalDate date) {
+        return attendanceRepository.findByDateOrderByStudentUsnAsc(date);
     }
 
     @Override

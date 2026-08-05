@@ -1,49 +1,86 @@
-### Java / Maven ###
-HELP.md
-target/
+# Java / Maven / Spring Boot
+**/target/
+**/build/
+**/out/
+**/.gradle/
+**/generated-sources/
+**/generated-test-sources/
+**/maven-status/
+**/surefire-reports/
+**/test-results/
+**/classes/
 *.class
 *.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+*.war
+*.ear
+*.nar
+**/HELP.md
 
-### Frontend / Node ###
+# Node / Vite / frontend tools
 node_modules/
+**/node_modules/
 dist/
-build/
+**/dist/
 coverage/
-!**/src/main/**/build/
-!**/src/test/**/build/
+**/coverage/
+.vite/
+**/.vite/
+.vite-cache/
+**/.vite-cache/
+*.tsbuildinfo
 
-### Secrets / Local Config ###
-backend/attendance/src/main/resources/application.properties
+# Package manager logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Environment / secrets
 .env
 .env.*
-*.key
 *.pem
+*.key
+*.crt
+*.cer
 *.p12
 *.pfx
 *.jks
 *.keystore
-*.crt
-*.cer
+*.p8
 *service-account*.json
 *service_account*.json
 firebase*.json
 *firebase*.json
 
-### Logs / Temp ###
-*.log
-*.tmp
-*.temp
-*.swp
-*.swo
+# IDE / editors
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+*.code-workspace
 
-### OS Files ###
+# OS files
 .DS_Store
 Thumbs.db
 desktop.ini
 
-### STS ###
+# Temporary / cache files
+.cache/
+**/.cache/
+tmp/
+**/tmp/
+temp/
+**/temp/
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+.eslintcache
+
+# Spring Tool Suite / Eclipse
 .apt_generated/
 .classpath
 .factorypath
@@ -52,20 +89,8 @@ desktop.ini
 .springBeans
 .sts4-cache/
 
-### IntelliJ IDEA ###
-.idea/
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /nbdist/
-/.nb-gradle/
-
-### VS Code ###
-.vscode/
-
-### Local Tooling ###
-.codex/
+.nb-gradle/

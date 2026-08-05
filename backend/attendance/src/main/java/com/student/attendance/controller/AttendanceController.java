@@ -9,7 +9,9 @@ import org.springframework.security.core.Authentication;
 import com.student.attendance.service.AttendanceService;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/attendance")
@@ -42,6 +44,15 @@ public class AttendanceController {
 
         return ResponseEntity.ok(toResponse(
                 attendanceService.markAttendance(effectiveUsn, request, isStudent)));
+    }
+
+    @GetMapping(params = "date")
+    public List<Map<String, Object>> getAttendanceByDate(@RequestParam LocalDate date) {
+        return attendanceService.getAttendanceByDate(date).stream()
+                .map(attendance -> Map.<String, Object>of(
+                        "studentUsn", attendance.getStudentUsn(),
+                        "status", attendance.getStatus()))
+                .toList();
     }
 
     @GetMapping
