@@ -9,6 +9,7 @@ function Login() {
   const [loginMode, setLoginMode] = useState("faculty");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e) => {
@@ -34,64 +35,109 @@ function Login() {
   };
 
   return (
-    <div>
-      <h1 id="loginTitle">
-        {loginMode === "faculty" ? "Faculty Login" : "Student Login"}
-      </h1>
+    <div className="auth-shell">
+      <section className="auth-hero">
+        <div className="auth-hero-content">
+          <div className="brand-wrap hero-brand">
+            <div className="brand-mark">A</div>
+            <div className="brand-block">
+              <div className="brand">
+                Attendance<span>System</span>
+              </div>
+              <p className="brand-subtitle">Modern attendance management</p>
+            </div>
+          </div>
 
-      <form id="loginForm" onSubmit={handleSubmit}>
-        <label htmlFor="loginMode">Login Type</label>
+          <div className="hero-copy">
+            <p className="eyebrow">Secure access</p>
+            <h1>Welcome back to your workspace.</h1>
+            <p>
+              Keep attendance tracking simple, polished, and efficient for faculty and students.
+            </p>
+          </div>
 
-        <select
-          id="loginMode"
-          value={loginMode}
-          onChange={(e) => setLoginMode(e.target.value)}
-        >
-          <option value="faculty">Faculty Login</option>
-          <option value="student">Student Login</option>
-        </select>
+          <div className="hero-pills">
+            <span className="hero-pill">Faculty portal</span>
+            <span className="hero-pill">Student portal</span>
+          </div>
+        </div>
+      </section>
 
-        <br />
-        <br />
+      <section className="auth-form-panel">
+        <div className="auth-card">
+          <div className="auth-intro">
+            <p className="eyebrow">Sign in</p>
+            <h1 id="loginTitle">
+              {loginMode === "faculty" ? "Faculty Login" : "Student Login"}
+            </h1>
+            <p className="page-subtitle">
+              Access the attendance platform with your institution credentials.
+            </p>
+          </div>
 
-        <label htmlFor="username">
-          {loginMode === "faculty" ? "Username" : "USN"}
-        </label>
+          <div className="mode-switcher" role="tablist" aria-label="Login type">
+            <button
+              type="button"
+              className={`mode-pill${loginMode === "faculty" ? " active" : ""}`}
+              onClick={() => setLoginMode("faculty")}
+            >
+              Faculty
+            </button>
+            <button
+              type="button"
+              className={`mode-pill${loginMode === "student" ? " active" : ""}`}
+              onClick={() => setLoginMode("student")}
+            >
+              Student
+            </button>
+          </div>
 
-        <input
-          type="text"
-          id="username"
-          placeholder={
-            loginMode === "faculty"
-              ? "Enter username"
-              : "Enter USN"
-          }
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
+          <form id="loginForm" onSubmit={handleSubmit}>
+            <label htmlFor="username">
+              {loginMode === "faculty" ? "Username" : "USN"}
+            </label>
 
-        <br />
-        <br />
+            <input
+              type="text"
+              id="username"
+              placeholder={
+                loginMode === "faculty"
+                  ? "Enter username"
+                  : "Enter USN"
+              }
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
 
-        <label htmlFor="password">Password</label>
+            <label htmlFor="password">Password</label>
 
-        <input
-          type="password"
-          id="password"
-          placeholder="Enter password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+            <div className="password-field">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
 
-        <br />
-        <br />
+            <button className="btn primary auth-submit" type="submit">
+              Sign in
+            </button>
+          </form>
 
-        <button type="submit">Login</button>
-      </form>
-
-      {errorMessage && <p id="errorMessage">{errorMessage}</p>}
+          {errorMessage && <p id="errorMessage">{errorMessage}</p>}
+        </div>
+      </section>
     </div>
   );
 }

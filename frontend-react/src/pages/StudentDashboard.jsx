@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import "../css/style.css";
 import { getStudentDashboard, markAttendance } from "../services/api";
 import StudentNavbar from "../components/StudentNavbar";
+import Footer from "../components/Footer";
+import LoadingState from "../components/LoadingState";
 
 function StudentDashboard() {
   const [student, setStudent] = useState(null);
   const [attendance, setAttendance] = useState(null);
   const [statusMessage, setStatusMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadDashboard();
@@ -18,6 +21,7 @@ function StudentDashboard() {
 
       setStudent(data.student);
       setAttendance(data.attendance);
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
     }
@@ -44,8 +48,24 @@ function StudentDashboard() {
     }
   }
 
-  if (!student || !attendance) {
-    return <h2>Loading...</h2>;
+  if (isLoading || !student || !attendance) {
+    return (
+      <>
+        <StudentNavbar />
+        <main className="container">
+          <section className="page-header">
+            <div>
+              <p className="eyebrow">Student</p>
+              <h1>Loading your workspace</h1>
+              <p className="page-subtitle">Preparing your attendance overview.</p>
+            </div>
+          </section>
+          <LoadingState type="stats" />
+          <LoadingState type="table" />
+        </main>
+        <Footer />
+      </>
+    );
   }
 
   return (
@@ -56,8 +76,10 @@ function StudentDashboard() {
         <section className="page-header">
           <div>
             <p className="eyebrow">Student</p>
-
             <h1>Welcome {student.name}</h1>
+            <p className="page-subtitle">
+              Keep track of your attendance record and mark your presence when needed.
+            </p>
           </div>
         </section>
 
@@ -82,7 +104,10 @@ function StudentDashboard() {
         </section>
 
         <section className="card actions-card">
-          <h2>Mark Attendance</h2>
+          <div className="section-heading">
+            <h2>Mark Attendance</h2>
+            <p>Use your current location to record attendance instantly.</p>
+          </div>
 
           <div className="button-row">
             <button className="btn primary" onClick={handleAttendance}>
@@ -94,7 +119,10 @@ function StudentDashboard() {
         </section>
 
         <section className="card table-card">
-          <h2>Attendance History</h2>
+          <div className="section-heading">
+            <h2>Attendance History</h2>
+            <p>Review your recent attendance entries in one place.</p>
+          </div>
 
           <div className="table-wrapper">
             <table>
@@ -124,6 +152,7 @@ function StudentDashboard() {
           </div>
         </section>
       </main>
+      <Footer />
     </>
   );
 }

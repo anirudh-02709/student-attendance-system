@@ -7,6 +7,8 @@ import {
   updateStudent,
 } from "../services/api";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import LoadingState from "../components/LoadingState";
 
 const emptyStudent = {
   name: "",
@@ -21,6 +23,7 @@ function Students() {
   const [student, setStudent] = useState(emptyStudent);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingUsn, setEditingUsn] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   async function loadStudents() {
     try {
@@ -28,6 +31,8 @@ function Students() {
       setStudents(data);
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -122,11 +127,17 @@ function Students() {
           <div>
             <p className="eyebrow">Management</p>
             <h1>Students</h1>
+            <p className="page-subtitle">
+              Manage student records with a clear and focused workspace.
+            </p>
           </div>
         </section>
 
         <section className="card form-card">
-          <h2>{isEditMode ? "Edit Student" : "Add Student"}</h2>
+          <div className="section-heading">
+            <h2>{isEditMode ? "Edit Student" : "Add Student"}</h2>
+            <p>Capture student details and keep the directory up to date.</p>
+          </div>
 
           <form className="form-grid" onSubmit={handleSubmit}>
             <label>
@@ -214,58 +225,68 @@ function Students() {
         </section>
 
         <section className="card table-card">
-          <h2>Student List</h2>
+          <div className="section-heading">
+            <h2>Student List</h2>
+            <p>Review a concise view of all enrolled students.</p>
+          </div>
 
           <div className="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>USN</th>
-                  <th>Branch</th>
-                  <th>Year</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {students.length === 0 ? (
+            {isLoading ? (
+              <LoadingState type="table" />
+            ) : (
+              <table>
+                <thead>
                   <tr>
-                    <td colSpan="5">No students found.</td>
+                    <th>Name</th>
+                    <th>USN</th>
+                    <th>Branch</th>
+                    <th>Year</th>
+                    <th>Action</th>
                   </tr>
-                ) : (
-                  students.map((s) => (
-                    <tr key={s.usn}>
-                      <td>{s.name}</td>
-                      <td>{s.usn}</td>
-                      <td>{s.branch}</td>
-                      <td>{s.year}</td>
-                      <td>
-                        <div className="button-row">
-                          <button
-                            className="btn secondary"
-                            type="button"
-                            onClick={() => handleEdit(s)}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn danger"
-                            type="button"
-                            onClick={() => handleDelete(s.usn)}
-                          >
-                            Delete
-                          </button>
-                        </div>
+                </thead>
+
+                <tbody>
+                  {students.length === 0 ? (
+                    <tr>
+                      <td colSpan="5">
+                        <div className="empty-state">No students found. Add a new student to get started.</div>
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    students.map((s) => (
+                      <tr key={s.usn}>
+                        <td>{s.name}</td>
+                        <td>{s.usn}</td>
+                        <td>{s.branch}</td>
+                        <td>{s.year}</td>
+                        <td>
+                          <div className="button-row">
+                            <button
+                              className="btn secondary"
+                              type="button"
+                              onClick={() => handleEdit(s)}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="btn danger"
+                              type="button"
+                              onClick={() => handleDelete(s.usn)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </section>
       </main>
+      <Footer />
     </>
   );
 }

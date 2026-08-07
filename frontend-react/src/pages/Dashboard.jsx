@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import "../css/style.css";
 import { getDashboard } from "../services/api";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import LoadingState from "../components/LoadingState";
 
 function Dashboard() {
   const [dashboard, setDashboard] = useState({
@@ -10,6 +12,7 @@ function Dashboard() {
     presentToday: 0,
     attendancePercentage: 0,
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function loadDashboard() {
@@ -18,6 +21,8 @@ function Dashboard() {
         setDashboard(data);
       } catch (error) {
         console.error(error);
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -33,40 +38,62 @@ function Dashboard() {
           <div>
             <p className="eyebrow">Overview</p>
             <h1>Student Attendance Dashboard</h1>
+            <p className="page-subtitle">
+              Keep your institution’s attendance workflow organized and streamlined.
+            </p>
           </div>
         </section>
 
-        <section className="stats-grid">
-          <article className="card metric-card">
-            <p className="metric-label">Total Students</p>
-            <h2>{dashboard.totalStudents}</h2>
-          </article>
+        {isLoading ? (
+          <LoadingState type="stats" />
+        ) : (
+          <section className="stats-grid">
+            <article className="card metric-card metric-card-highlight">
+              <div className="metric-icon">◉</div>
+              <div>
+                <p className="metric-label">Total Students</p>
+                <h2>{dashboard.totalStudents}</h2>
+              </div>
+            </article>
 
-          <article className="card metric-card">
-            <p className="metric-label">Present Today</p>
-            <h2>{dashboard.presentToday}</h2>
-          </article>
+            <article className="card metric-card">
+              <div className="metric-icon metric-icon-soft">✓</div>
+              <div>
+                <p className="metric-label">Present Today</p>
+                <h2>{dashboard.presentToday}</h2>
+              </div>
+            </article>
 
-          <article className="card metric-card">
-            <p className="metric-label">Attendance %</p>
-            <h2>{dashboard.attendancePercentage}%</h2>
-          </article>
-        </section>
+            <article className="card metric-card">
+              <div className="metric-icon metric-icon-muted">%</div>
+              <div>
+                <p className="metric-label">Attendance %</p>
+                <h2>{dashboard.attendancePercentage}%</h2>
+              </div>
+            </article>
+          </section>
+        )}
 
         <section className="card actions-card">
-          <h2>Quick Actions</h2>
+          <div className="section-heading">
+            <h2>Quick Actions</h2>
+            <p>Move between student management and attendance marking quickly.</p>
+          </div>
 
           <div className="button-row">
-            <Link className="btn primary" to="/students">
-              Manage Students
+            <Link className="btn primary action-card-btn" to="/students">
+              <span className="btn-icon">☰</span>
+              <span>Manage Students</span>
             </Link>
 
-            <Link className="btn secondary" to="/attendance">
-              Mark Attendance
+            <Link className="btn secondary action-card-btn" to="/attendance">
+              <span className="btn-icon">✓</span>
+              <span>Mark Attendance</span>
             </Link>
           </div>
         </section>
       </main>
+      <Footer />
     </>
   );
 }

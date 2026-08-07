@@ -6,12 +6,15 @@ import {
   markAttendance,
 } from "../services/api";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import LoadingState from "../components/LoadingState";
 
 function Attendance() {
   const [students, setStudents] = useState([]);
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [statusMessage, setStatusMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const requestIdRef = useRef(0);
 
   useEffect(() => {
@@ -55,6 +58,7 @@ function Attendance() {
 
         setStudents(mergedStudents);
         setStatusMessage("");
+        setIsLoading(false);
       } catch (error) {
         if (requestId !== requestIdRef.current) {
           return;
@@ -62,6 +66,7 @@ function Attendance() {
 
         console.error(error);
         setStatusMessage(error.message);
+        setIsLoading(false);
       }
     };
 
@@ -163,6 +168,9 @@ function Attendance() {
           <div>
             <p className="eyebrow">Attendance</p>
             <h1>Mark Daily Attendance</h1>
+            <p className="page-subtitle">
+              Record student attendance clearly for each day without disrupting your workflow.
+            </p>
           </div>
         </section>
 
@@ -194,35 +202,44 @@ function Attendance() {
         </section>
 
         <section className="card table-card">
-          <h2>Students</h2>
+          <div className="section-heading">
+            <h2>Students</h2>
+            <p>Review the attendance list for the selected date.</p>
+          </div>
 
-          <ul className="student-list">
-            {students.map((student, index) => (
-              <li key={student.usn}>
-                <label>
-                  <span>
-                    {student.name} ({student.usn})
-                  </span>
-                </label>
+          {isLoading ? (
+            <LoadingState type="list" />
+          ) : students.length === 0 ? (
+            <div className="empty-state">No students are available to display for the selected date.</div>
+          ) : (
+            <ul className="student-list">
+              {students.map((student, index) => (
+                <li key={student.usn}>
+                  <label>
+                    <span>
+                      {student.name} ({student.usn})
+                    </span>
+                  </label>
 
-                {student.isMarked ? (
-                  <span>
-                    ✔ Already Marked ({student.status})
-                  </span>
-                ) : (
-                  <select
-                    value={student.status}
-                    onChange={(e) =>
-                      handleStatusChange(index, e.target.value)
-                    }
-                  >
-                    <option value="Present">Present</option>
-                    <option value="Absent">Absent</option>
-                  </select>
-                )}
-              </li>
-            ))}
-          </ul>
+                  {student.isMarked ? (
+                    <span className="badge status-chip">
+                      ✓ Already Marked ({student.status})
+                    </span>
+                  ) : (
+                    <select
+                      value={student.status}
+                      onChange={(e) =>
+                        handleStatusChange(index, e.target.value)
+                      }
+                    >
+                      <option value="Present">Present</option>
+                      <option value="Absent">Absent</option>
+                    </select>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
 
           {allStudentsMarked && (
             <p className="status-message">
@@ -237,6 +254,7 @@ function Attendance() {
           )}
         </section>
       </main>
+      <Footer />
     </>
   );
 }
