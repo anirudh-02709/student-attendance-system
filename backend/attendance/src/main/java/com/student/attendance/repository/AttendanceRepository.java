@@ -18,4 +18,8 @@ public interface AttendanceRepository extends MongoRepository<Attendance, String
 
     List<Attendance> findByStudentUsnOrderByDateDesc(String studentUsn);
 
+    List<Attendance> findByStudentUsnInOrderByStudentUsnAsc(List<String> studentUsns);
+
+    List<Attendance> findByStudentUsnInAndDateOrderByStudentUsnAsc(List<String> studentUsns, LocalDate date);
+
 }

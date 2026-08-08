@@ -29,27 +29,51 @@ public class StudentDashboardService {
         Student student = studentRepository.findById(usn)
                 .orElseThrow(() -> new UsernameNotFoundException("Student not found"));
 
-        return new StudentProfileResponse(student.getUsn(), student.getName(), student.getBranch(), student.getYear());
+        return new StudentProfileResponse(
+                student.getUsn(),
+                student.getName(),
+                student.getBranch(),
+                student.getYear()
+        );
     }
 
     public StudentAttendanceSummaryResponse getAttendanceSummary(String usn) {
+
+        Student student = studentRepository.findById(usn)
+                .orElseThrow(() -> new UsernameNotFoundException("Student not found"));
+
+        // No faculty ownership check is required here.
+        // This service is accessed by the authenticated student,
+        // who can only request their own dashboard.
+
         List<Attendance> attendanceRecords = attendanceService.getAttendanceByStudentUsn(usn);
 
         int presentCount = (int) attendanceRecords.stream()
-                .filter(attendance -> AttendanceStatus.Present == attendance.getStatus())
+                .filter(attendance -> attendance.getStatus() == AttendanceStatus.Present)
                 .count();
+
         int absentCount = (int) attendanceRecords.stream()
-                .filter(attendance -> AttendanceStatus.Absent == attendance.getStatus())
+                .filter(attendance -> attendance.getStatus() == AttendanceStatus.Absent)
                 .count();
+
         int totalCount = presentCount + absentCount;
+
         double attendancePercentage = totalCount > 0
                 ? Math.round((presentCount * 10000.0) / totalCount) / 100.0
                 : 0;
 
         List<StudentAttendanceRecordResponse> attendanceHistory = attendanceRecords.stream()
-                .map(attendance -> new StudentAttendanceRecordResponse(attendance.getDate(), attendance.getStatus()))
+                .map(attendance -> new StudentAttendanceRecordResponse(
+                        attendance.getDate(),
+                        attendance.getStatus()
+                ))
                 .toList();
 
-        return new StudentAttendanceSummaryResponse(presentCount, absentCount, attendancePercentage, attendanceHistory);
+        return new StudentAttendanceSummaryResponse(
+                presentCount,
+                absentCount,
+                attendancePercentage,
+                attendanceHistory
+        );
     }
 }

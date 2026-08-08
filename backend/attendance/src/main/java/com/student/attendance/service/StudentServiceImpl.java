@@ -4,8 +4,12 @@ import com.student.attendance.exception.StudentNotFoundException;
 import com.student.attendance.model.Role;
 import com.student.attendance.model.Student;
 import com.student.attendance.repository.StudentRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service; //@Service annotation
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -28,20 +32,24 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<Student> getAllStudents() {
-        return studentRepository.findAll();
+        String facultyUsername = getCurrentFacultyUsername();
+        return studentRepository.findByFacultyUsername(facultyUsername);
     }
 
     @Override
     public Student getStudentByUsn(String usn) {
-        return studentRepository.findById(usn)
+        String facultyUsername = getCurrentFacultyUsername();
+        return studentRepository.findByUsnAndFacultyUsername(usn, facultyUsername)
                 .orElseThrow(() -> new StudentNotFoundException("Student not found with USN: " + usn));
     }
 
     @Override
     public Student updateStudent(String usn, Student updatedStudent) {
 
-        Student existingStudent = studentRepository.findById(usn)
-                .orElseThrow(() -> new StudentNotFoundException("Student not found with USN: " + usn));
+        String facultyUsername = getCurrentFacultyUsername();
+        Student existingStudent = studentRepository.findByUsnAndFacultyUsername(usn, facultyUsername)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "You do not have permission to update this student"));
 
         existingStudent.setName(updatedStudent.getName());
         existingStudent.setBranch(updatedStudent.getBranch());
@@ -59,8 +67,10 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void deleteStudent(String usn) {
 
-        Student student = studentRepository.findById(usn)
-                .orElseThrow(() -> new StudentNotFoundException("Student not found with USN: " + usn));
+        String facultyUsername = getCurrentFacultyUsername();
+        Student student = studentRepository.findByUsnAndFacultyUsername(usn, facultyUsername)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "You do not have permission to delete this student"));
 
         studentRepository.delete(student);
     }
@@ -70,6 +80,23 @@ public class StudentServiceImpl implements StudentService {
             student.setPassword(passwordEncoder.encode(student.getPassword()));
         }
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()
+                && authentication.getName() != null && !"anonymousUser".equals(authentication.getName())) {
+            student.setFacultyUsername(authentication.getName());
+        }
+
         student.setRole(Role.STUDENT);
+    }
+
+    private String getCurrentFacultyUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getName() == null || "anonymousUser".equals(authentication.getName())) {
+            throw new IllegalStateException("Authenticated faculty username is required to fetch students");
+        }
+
+        return authentication.getName();
     }
 }

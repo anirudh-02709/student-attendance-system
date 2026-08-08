@@ -6,9 +6,15 @@ import com.student.attendance.exception.DuplicateAttendanceException;
 import com.student.attendance.exception.InvalidLocationException;
 import com.student.attendance.model.Attendance;
 import com.student.attendance.model.AttendanceStatus;
+import com.student.attendance.model.Student;
 import com.student.attendance.repository.AttendanceRepository;
+import com.student.attendance.repository.StudentRepository;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,6 +24,7 @@ import java.util.List;
 public class AttendanceServiceImpl implements AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
+    private final StudentRepository studentRepository;
 
     // Replace with your college coordinates
     private static final double COLLEGE_LATITUDE = 12.892763130939501;
@@ -26,12 +33,29 @@ public class AttendanceServiceImpl implements AttendanceService {
     // Allowed radius in meters
     private static final double ALLOWED_RADIUS = 100.0;
 
-    public AttendanceServiceImpl(AttendanceRepository attendanceRepository) {
+    public AttendanceServiceImpl(AttendanceRepository attendanceRepository, StudentRepository studentRepository) {
         this.attendanceRepository = attendanceRepository;
+        this.studentRepository = studentRepository;
     }
 
     @Override
     public Attendance markAttendance(String studentUsn, AttendanceLocationRequest request, boolean requiresLocationVerification) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            boolean isStudent = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_STUDENT"));
+
+            if (isStudent && !studentUsn.equals(authentication.getName())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "You can only mark attendance for your own student record");
+            }
+
+            if (!isStudent && !studentBelongsToCurrentFaculty(studentUsn)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "You do not have permission to mark attendance for this student");
+            }
+        }
+
         Attendance attendance = new Attendance();
         attendance.setStudentUsn(studentUsn);
         attendance.setDate(
@@ -62,6 +86,30 @@ public class AttendanceServiceImpl implements AttendanceService {
         } catch (DuplicateKeyException exception) {
             throw new DuplicateAttendanceException(duplicateMessage);
         }
+    }
+
+    private boolean studentBelongsToCurrentFaculty(String studentUsn) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getName() == null || "anonymousUser".equals(authentication.getName())) {
+            return false;
+        }
+
+        String facultyUsername = authentication.getName();
+        return studentRepository.findByUsnAndFacultyUsername(studentUsn, facultyUsername).isPresent();
+    }
+
+    private List<String> getCurrentFacultyStudentUsns() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getName() == null || "anonymousUser".equals(authentication.getName())) {
+            return List.of();
+        }
+
+        String facultyUsername = authentication.getName();
+        return studentRepository.findByFacultyUsername(facultyUsername).stream()
+                .map(Student::getUsn)
+                .toList();
     }
 
     private void verifyLocation(Attendance attendance) {
@@ -100,12 +148,12 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     public List<Attendance> getAllAttendance() {
-        return attendanceRepository.findAll();
+        return attendanceRepository.findByStudentUsnInOrderByStudentUsnAsc(getCurrentFacultyStudentUsns());
     }
 
     @Override
     public List<Attendance> getAttendanceByDate(LocalDate date) {
-        return attendanceRepository.findByDateOrderByStudentUsnAsc(date);
+        return attendanceRepository.findByStudentUsnInAndDateOrderByStudentUsnAsc(getCurrentFacultyStudentUsns(), date);
     }
 
     @Override
@@ -115,14 +163,26 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     public Attendance getAttendanceById(String id) {
-        return attendanceRepository.findById(id)
+        Attendance attendance = attendanceRepository.findById(id)
                 .orElseThrow(() -> new AttendanceNotFoundException("Attendance not found with id: " + id));
+
+        if (!studentBelongsToCurrentFaculty(attendance.getStudentUsn())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "You do not have permission to access this attendance record");
+        }
+
+        return attendance;
     }
 
     @Override
     public Attendance updateAttendance(String id, Attendance updatedAttendance) {
         Attendance existingAttendance = attendanceRepository.findById(id)
                 .orElseThrow(() -> new AttendanceNotFoundException("Attendance not found with id: " + id));
+
+        if (!studentBelongsToCurrentFaculty(existingAttendance.getStudentUsn())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "You do not have permission to update this attendance record");
+        }
 
         existingAttendance.setStudentUsn(updatedAttendance.getStudentUsn());
         existingAttendance.setDate(updatedAttendance.getDate());
@@ -138,6 +198,11 @@ public class AttendanceServiceImpl implements AttendanceService {
     public void deleteAttendance(String id) {
         Attendance attendance = attendanceRepository.findById(id)
                 .orElseThrow(() -> new AttendanceNotFoundException("Attendance not found with id: " + id));
+
+        if (!studentBelongsToCurrentFaculty(attendance.getStudentUsn())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "You do not have permission to delete this attendance record");
+        }
 
         attendanceRepository.delete(attendance);
     }

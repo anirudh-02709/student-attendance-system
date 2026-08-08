@@ -139,16 +139,26 @@ function Students() {
             <p>Capture student details and keep the directory up to date.</p>
           </div>
 
-          <form className="form-grid" onSubmit={handleSubmit}>
+          <form
+            className="form-grid"
+            autoComplete="off"
+            onSubmit={handleSubmit}
+          >
             <label>
               <span>Name</span>
 
               <input
-                name="name"
-                value={student.name}
+                name="password"
+                type="password"
+                value={student.password}
                 onChange={handleChange}
-                placeholder="Enter full name"
-                required
+                placeholder={
+                  isEditMode
+                    ? "Leave empty to keep current password"
+                    : "Enter password"
+                }
+                autoComplete="new-password"
+                required={!isEditMode}
               />
             </label>
 
@@ -199,7 +209,11 @@ function Students() {
                 type="password"
                 value={student.password}
                 onChange={handleChange}
-                placeholder={isEditMode ? "Leave empty to keep current password" : "Password"}
+                placeholder={
+                  isEditMode
+                    ? "Leave empty to keep current password"
+                    : "Password"
+                }
                 required={!isEditMode}
               />
             </label>
@@ -249,7 +263,9 @@ function Students() {
                   {students.length === 0 ? (
                     <tr>
                       <td colSpan="5">
-                        <div className="empty-state">No students found. Add a new student to get started.</div>
+                        <div className="empty-state">
+                          No students found. Add a new student to get started.
+                        </div>
                       </td>
                     </tr>
                   ) : (

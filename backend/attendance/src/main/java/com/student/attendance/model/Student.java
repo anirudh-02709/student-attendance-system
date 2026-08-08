@@ -23,6 +23,8 @@ public class Student {
 
     private int year;
 
+    private String facultyUsername;
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
