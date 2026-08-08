@@ -24,6 +24,7 @@ function Students() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingUsn, setEditingUsn] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   async function loadStudents() {
     try {
@@ -39,6 +40,37 @@ function Students() {
   useEffect(() => {
     loadStudents();
   }, []);
+
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+  const filteredStudents = students.filter((studentItem) => {
+    if (!normalizedSearchTerm) {
+      return true;
+    }
+
+    const studentName = studentItem?.name?.toLowerCase?.() ?? "";
+    const studentUsn = studentItem?.usn?.toLowerCase?.() ?? "";
+
+    return (
+      studentName.includes(normalizedSearchTerm) ||
+      studentUsn.includes(normalizedSearchTerm)
+    );
+  });
+
+  const studentListTitle = isLoading
+    ? "Student List"
+    : normalizedSearchTerm
+      ? `Student List (${filteredStudents.length} of ${students.length})`
+      : `Student List (${students.length})`;
+
+  const clearSearch = () => {
+    setSearchTerm("");
+  };
+
+  const handleSearchKeyDown = (event) => {
+    if (event.key === "Escape") {
+      clearSearch();
+    }
+  };
 
   const resetForm = () => {
     setStudent(emptyStudent);
@@ -240,8 +272,38 @@ function Students() {
 
         <section className="card table-card">
           <div className="section-heading">
-            <h2>Student List</h2>
+            <h2 className="student-list-title">{studentListTitle}</h2>
             <p>Review a concise view of all enrolled students.</p>
+          </div>
+
+          <div className="search-panel">
+            <label className="search-field" htmlFor="student-search">
+              <span className="sr-only">Search students</span>
+              <span className="search-shell">
+                <span className="search-icon" aria-hidden="true">
+                  🔎
+                </span>
+                <input
+                  id="student-search"
+                  type="search"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  onKeyDown={handleSearchKeyDown}
+                  placeholder="Search by name or USN..."
+                  aria-label="Search students by name or USN"
+                />
+                {searchTerm.length > 0 && (
+                  <button
+                    type="button"
+                    className="search-clear"
+                    onClick={clearSearch}
+                    aria-label="Clear search"
+                  >
+                    ×
+                  </button>
+                )}
+              </span>
+            </label>
           </div>
 
           <div className="table-wrapper">
@@ -268,8 +330,16 @@ function Students() {
                         </div>
                       </td>
                     </tr>
+                  ) : filteredStudents.length === 0 ? (
+                    <tr>
+                      <td colSpan="5">
+                        <div className="empty-state">
+                          No matching students found.
+                        </div>
+                      </td>
+                    </tr>
                   ) : (
-                    students.map((s) => (
+                    filteredStudents.map((s) => (
                       <tr key={s.usn}>
                         <td>{s.name}</td>
                         <td>{s.usn}</td>
