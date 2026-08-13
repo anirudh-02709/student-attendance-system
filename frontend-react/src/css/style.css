@@ -983,3 +983,161 @@ tbody tr:last-child td {
     padding: 1.5rem;
   }
 }
+
+/* ==========================================================================
+   Marks Management & Modal Overlay Styles
+   ========================================================================== */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1.25rem;
+  animation: fadeIn 180ms ease-out;
+}
+
+.modal-card {
+  width: min(100%, 640px);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.6rem 1.8rem;
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-subtitle {
+  margin: 0.3rem 0 0;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.modal-close-btn:hover {
+  color: var(--text);
+  background: var(--surface-muted);
+}
+
+.marks-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 1.2rem;
+}
+
+.marks-subject-card {
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.marks-subject-card:hover {
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+
+.subject-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.subject-title {
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: var(--text);
+}
+
+.status-badge-uploaded {
+  background: #ecfeff;
+  color: var(--success);
+  border: 1px solid #bfe0e2;
+  font-size: 0.82rem;
+  padding: 0.25rem 0.6rem;
+}
+
+.status-badge-new {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  border: 1px solid #bfdbfe;
+  font-size: 0.82rem;
+  padding: 0.25rem 0.6rem;
+}
+
+.subject-input-row {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.marks-input-label {
+  flex: 1;
+  margin: 0;
+}
+
+.subject-action-btn {
+  white-space: nowrap;
+  min-width: 85px;
+}
+
+.action-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+.status-error {
+  background: var(--danger-soft) !important;
+  color: var(--danger) !important;
+  border-color: #fecaca !important;
+}
+
+.status-success {
+  background: #ecfeff !important;
+  color: var(--success) !important;
+  border-color: #bfe0e2 !important;
+}
+

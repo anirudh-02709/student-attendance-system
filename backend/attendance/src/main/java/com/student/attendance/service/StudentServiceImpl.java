@@ -1,5 +1,8 @@
 package com.student.attendance.service;
 
+import java.util.Map;
+import java.util.Set;
+
 import com.student.attendance.exception.StudentNotFoundException;
 import com.student.attendance.model.Role;
 import com.student.attendance.model.Student;
@@ -15,6 +18,13 @@ import java.util.List;
 
 @Service
 public class StudentServiceImpl implements StudentService {
+
+    private static final Set<String> VALID_SUBJECTS = Set.of(
+            "DBMS",
+            "DSA",
+            "OS",
+            "Java",
+            "Computer Networks");
 
     private final StudentRepository studentRepository;
     private final PasswordEncoder passwordEncoder;
@@ -98,5 +108,82 @@ public class StudentServiceImpl implements StudentService {
         }
 
         return authentication.getName();
+    }
+
+    public Student uploadMarks(
+            String facultyUsername,
+            String usn,
+            Map<String, Integer> marks) {
+
+        Student student = studentRepository.findByUsnAndFacultyUsername(usn, facultyUsername)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.FORBIDDEN,
+                        "You do not have permission to upload marks for this student"));
+
+        for (Map.Entry<String, Integer> entry : marks.entrySet()) {
+            String subject = entry.getKey();
+            Integer mark = entry.getValue();
+
+            if (mark == null) {
+                continue;
+            }
+
+            if (!VALID_SUBJECTS.contains(subject)) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Invalid subject: " + subject);
+            }
+
+            if (student.getMarks().containsKey(subject)) {
+                throw new ResponseStatusException(
+                        HttpStatus.CONFLICT,
+                        "Marks already uploaded for " + subject);
+            }
+
+            student.getMarks().put(subject, mark);
+        }
+
+        return studentRepository.save(student);
+    }
+
+    public Map<String, Integer> getMarks(String usn) {
+        Student student = studentRepository.findByUsn(usn)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Student not found"));
+
+        return student.getMarks();
+    }
+
+    public Student updateMarks(String facultyUsername, String usn, Map<String, Integer> marks) {
+        Student student = studentRepository.findByUsnAndFacultyUsername(usn, facultyUsername)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.FORBIDDEN,
+                        "You do not have permission to update marks for this student"));
+
+        for (Map.Entry<String, Integer> entry : marks.entrySet()) {
+            String subject = entry.getKey();
+            Integer mark = entry.getValue();
+
+            if (!VALID_SUBJECTS.contains(subject)) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Invalid subject: " + subject);
+            }
+
+            if (mark == null) {
+                continue;
+            }
+
+            if (!student.getMarks().containsKey(subject)) {
+                throw new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Marks not found for " + subject);
+            }
+
+            student.getMarks().put(subject, mark);
+        }
+
+        return studentRepository.save(student);
     }
 }

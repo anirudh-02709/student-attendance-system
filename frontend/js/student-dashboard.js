@@ -26,11 +26,46 @@ function renderAttendanceHistory(records) {
   });
 }
 
+const studentMarksTable = document.getElementById("studentMarksTable");
+const studentMarksTableBody = document.getElementById("studentMarksTableBody");
+const studentMarksEmptyState = document.getElementById("studentMarksEmptyState");
+
+function renderStudentMarks(marks) {
+  if (!studentMarksTable || !studentMarksTableBody || !studentMarksEmptyState) return;
+
+  const entries = Object.entries(marks || {});
+
+  if (!entries.length) {
+    studentMarksTable.style.display = "none";
+    studentMarksEmptyState.style.display = "block";
+    return;
+  }
+
+  studentMarksTableEmptyStateDisplay(entries);
+}
+
+function studentMarksTableEmptyStateDisplay(entries) {
+  studentMarksEmptyState.style.display = "none";
+  studentMarksTable.style.display = "table";
+  studentMarksTableBody.innerHTML = "";
+
+  entries.forEach(([subject, mark]) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td><strong>${subject}</strong></td>
+      <td>${mark}</td>
+      <td><span class="badge status-badge-uploaded">✓ Uploaded</span></td>
+    `;
+    studentMarksTableBody.appendChild(row);
+  });
+}
+
 async function loadStudentDashboard() {
   try {
-    const [student, attendance] = await Promise.all([
+    const [student, attendance, marks] = await Promise.all([
       getCurrentStudent(),
       getCurrentStudentAttendance(),
+      getStudentMarks().catch(() => ({})),
     ]);
 
     if (studentWelcome) {
@@ -50,12 +85,14 @@ async function loadStudentDashboard() {
     }
 
     renderAttendanceHistory(attendance.attendanceHistory || []);
+    renderStudentMarks(marks || {});
   } catch (error) {
     console.error("Unable to load student dashboard.", error);
   }
 }
 
 loadStudentDashboard();
+
 
 function getGeolocation() {
   return new Promise((resolve, reject) => {

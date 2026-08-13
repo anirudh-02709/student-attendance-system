@@ -9,6 +9,7 @@ import {
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import LoadingState from "../components/LoadingState";
+import MarksModal from "../components/MarksModal";
 
 const emptyStudent = {
   name: "",
@@ -25,6 +26,24 @@ function Students() {
   const [editingUsn, setEditingUsn] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedMarksStudent, setSelectedMarksStudent] = useState(null);
+
+  const handleSaveMarks = (usn, updatedMarksMap) => {
+    setStudents((prevStudents) =>
+      prevStudents.map((item) =>
+        item.usn === usn
+          ? { ...item, marks: { ...(item.marks || {}), ...updatedMarksMap } }
+          : item
+      )
+    );
+    if (selectedMarksStudent && selectedMarksStudent.usn === usn) {
+      setSelectedMarksStudent((prev) => ({
+        ...prev,
+        marks: { ...(prev?.marks || {}), ...updatedMarksMap },
+      }));
+    }
+  };
+
 
   async function loadStudents() {
     try {
@@ -180,17 +199,11 @@ function Students() {
               <span>Name</span>
 
               <input
-                name="password"
-                type="password"
-                value={student.password}
+                name="name"
+                value={student.name}
                 onChange={handleChange}
-                placeholder={
-                  isEditMode
-                    ? "Leave empty to keep current password"
-                    : "Enter password"
-                }
-                autoComplete="new-password"
-                required={!isEditMode}
+                placeholder="Enter student name"
+                required
               />
             </label>
 
@@ -239,15 +252,17 @@ function Students() {
               <input
                 name="password"
                 type="password"
+                autoComplete="new-password"
                 value={student.password}
                 onChange={handleChange}
                 placeholder={
                   isEditMode
                     ? "Leave empty to keep current password"
-                    : "Password"
+                    : "Enter student password"
                 }
                 required={!isEditMode}
               />
+
             </label>
 
             <div className="field full-width">
@@ -350,6 +365,13 @@ function Students() {
                             <button
                               className="btn secondary"
                               type="button"
+                              onClick={() => setSelectedMarksStudent(s)}
+                            >
+                              Marks
+                            </button>
+                            <button
+                              className="btn secondary"
+                              type="button"
                               onClick={() => handleEdit(s)}
                             >
                               Edit
@@ -371,6 +393,14 @@ function Students() {
             )}
           </div>
         </section>
+
+        {selectedMarksStudent && (
+          <MarksModal
+            student={selectedMarksStudent}
+            onClose={() => setSelectedMarksStudent(null)}
+            onSaveMarks={handleSaveMarks}
+          />
+        )}
       </main>
       <Footer />
     </>
@@ -378,3 +408,4 @@ function Students() {
 }
 
 export default Students;
+

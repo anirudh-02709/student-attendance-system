@@ -63,6 +63,9 @@ public class SecurityConfig {
                         .requestMatchers(request -> request.getServletPath().startsWith("/student/"))
                         .hasRole(Role.STUDENT.name())
 
+                        .requestMatchers(request -> "/students/marks".equals(request.getServletPath()))
+                        .hasAnyRole(Role.STUDENT.name(), Role.FACULTY.name())
+
                         .requestMatchers(request -> request.getServletPath().startsWith("/students"))
                         .hasRole(Role.FACULTY.name())
 

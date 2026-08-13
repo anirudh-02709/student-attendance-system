@@ -192,13 +192,47 @@ export async function getDashboard() {
 }
 
 export async function getStudentDashboard() {
-  const [student, attendance] = await Promise.all([
+  const [student, attendance, marks] = await Promise.all([
     getCurrentStudent(),
     getCurrentStudentAttendance(),
+    getStudentMarks().catch(() => ({})),
   ]);
 
   return {
     student,
     attendance,
+    marks: marks || {},
   };
+}
+
+// ---------------------- MARKS ----------------------
+
+export async function getStudentMarks() {
+  return await requestJson(`${API_BASE_URL}/students/marks`);
+}
+
+export async function uploadStudentMarks(usn, marks) {
+  return await requestJson(
+    `${API_BASE_URL}/students/${encodeURIComponent(usn)}/marks`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(marks),
+    }
+  );
+}
+
+export async function updateStudentMarks(usn, marks) {
+  return await requestJson(
+    `${API_BASE_URL}/students/${encodeURIComponent(usn)}/marks`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(marks),
+    }
+  );
 }

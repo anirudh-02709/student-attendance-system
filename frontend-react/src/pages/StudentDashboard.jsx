@@ -8,6 +8,7 @@ import LoadingState from "../components/LoadingState";
 function StudentDashboard() {
   const [student, setStudent] = useState(null);
   const [attendance, setAttendance] = useState(null);
+  const [marks, setMarks] = useState({});
   const [statusMessage, setStatusMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -21,9 +22,11 @@ function StudentDashboard() {
 
       setStudent(data.student);
       setAttendance(data.attendance);
+      setMarks(data.marks || {});
       setIsLoading(false);
     } catch (error) {
       console.error(error);
+      setIsLoading(false);
     }
   }
 
@@ -68,6 +71,8 @@ function StudentDashboard() {
     );
   }
 
+  const hasMarks = marks && Object.keys(marks).length > 0;
+
   return (
     <>
       <StudentNavbar />
@@ -78,7 +83,7 @@ function StudentDashboard() {
             <p className="eyebrow">Student</p>
             <h1>Welcome {student.name}</h1>
             <p className="page-subtitle">
-              Keep track of your attendance record and mark your presence when needed.
+              Keep track of your attendance record and view your subject marks.
             </p>
           </div>
         </section>
@@ -101,6 +106,45 @@ function StudentDashboard() {
 
             <h2>{attendance.absentCount}</h2>
           </article>
+        </section>
+
+        <section className="card table-card" style={{ marginBottom: "1.2rem" }}>
+          <div className="section-heading">
+            <h2>Academic Marks</h2>
+            <p>Review your marks across subjects recorded by faculty.</p>
+          </div>
+
+          <div className="table-wrapper">
+            {!hasMarks ? (
+              <div className="empty-state">
+                No marks have been uploaded by your faculty yet.
+              </div>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Subject</th>
+                    <th>Marks</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {Object.entries(marks).map(([subject, mark]) => (
+                    <tr key={subject}>
+                      <td><strong>{subject}</strong></td>
+                      <td>{mark}</td>
+                      <td>
+                        <span className="badge status-badge-uploaded">
+                          ✓ Uploaded
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         </section>
 
         <section className="card actions-card">
@@ -158,3 +202,4 @@ function StudentDashboard() {
 }
 
 export default StudentDashboard;
+

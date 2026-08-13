@@ -47,6 +47,25 @@
         <p id="attendanceStatusMessage" class="status-message" hidden></p>
       </section>
 
+      <section class="card table-card" style="margin-bottom: 1rem;">
+        <h2>Academic Marks</h2>
+        <div class="table-wrapper">
+          <table id="studentMarksTable" style="display: none;">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Marks</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="studentMarksTableBody"></tbody>
+          </table>
+          <div id="studentMarksEmptyState" class="empty-state">
+            No marks have been uploaded by your faculty yet.
+          </div>
+        </div>
+      </section>
+
       <section class="card table-card">
         <h2>Attendance History</h2>
         <div class="table-wrapper">
@@ -61,6 +80,7 @@
           </table>
         </div>
       </section>
+
     </main>
 
     <script src="js/auth.js"></script>

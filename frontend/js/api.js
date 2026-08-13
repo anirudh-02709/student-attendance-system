@@ -253,3 +253,40 @@ async function getCurrentStudentAttendance() {
     throw error;
   }
 }
+
+async function uploadStudentMarks(usn, marks) {
+  try {
+    return await requestJson(
+      `${API_BASE_URL}students/${encodeURIComponent(usn)}/marks`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(marks),
+      }
+    );
+  } catch (error) {
+    console.error("Unable to upload student marks.", error);
+    throw error;
+  }
+}
+
+async function updateStudentMarks(usn, marks) {
+  try {
+    return await requestJson(
+      `${API_BASE_URL}students/${encodeURIComponent(usn)}/marks`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(marks),
+      }
+    );
+  } catch (error) {
+    console.error("Unable to update student marks.", error);
+    throw error;
+  }
+}
+

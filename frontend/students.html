@@ -56,10 +56,12 @@
             <input
               name="password"
               type="password"
+              autocomplete="new-password"
               placeholder="Enter student password"
               required
             />
           </label>
+
           <div class="field full-width">
             <button class="btn primary" type="submit">Add Student</button>
           </div>
@@ -83,6 +85,28 @@
           </table>
         </div>
       </section>
+
+      <!-- Marks Management Modal Container -->
+      <div id="marksModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+          <div class="modal-header">
+            <div>
+              <p class="eyebrow">Faculty Marks Management</p>
+              <h2 id="modalStudentName">Student Marks</h2>
+              <p id="modalStudentDetails" class="action-hint"></p>
+            </div>
+            <button id="closeMarksModal" class="modal-close-btn" type="button">×</button>
+          </div>
+          <form id="marksForm">
+            <div id="marksGrid" class="marks-grid"></div>
+            <div id="marksStatusMessage" class="status-message" style="display: none;"></div>
+            <div class="modal-actions">
+              <button class="btn primary" type="submit">Upload & Update All Entered Marks</button>
+              <button id="cancelMarksModal" class="btn secondary" type="button">Close</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </main>
 
     <script src="js/auth.js"></script>
