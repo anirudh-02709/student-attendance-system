@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "../css/style.css";
 import {
-  getStudents,
+  getStudentsPaginated,
   addStudent,
   deleteStudent,
   updateStudent,
@@ -10,6 +10,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import LoadingState from "../components/LoadingState";
 import MarksModal from "../components/MarksModal";
+
+const PAGE_SIZE = 10;
 
 const emptyStudent = {
   name: "",
@@ -28,6 +30,11 @@ function Students() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMarksStudent, setSelectedMarksStudent] = useState(null);
 
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
+
   const handleSaveMarks = (usn, updatedMarksMap) => {
     setStudents((prevStudents) =>
       prevStudents.map((item) =>
@@ -45,10 +52,15 @@ function Students() {
   };
 
 
-  async function loadStudents() {
+  async function loadStudents(page = currentPage) {
     try {
-      const data = await getStudents();
-      setStudents(data);
+      setIsLoading(true);
+      const data = await getStudentsPaginated(page, pageSize);
+      setStudents(data.students);
+      setCurrentPage(data.currentPage);
+      setTotalPages(data.totalPages);
+      setTotalElements(data.totalElements);
+      setPageSize(data.pageSize);
     } catch (error) {
       console.error(error);
     } finally {
@@ -57,8 +69,13 @@ function Students() {
   }
 
   useEffect(() => {
-    loadStudents();
+    loadStudents(0);
   }, []);
+
+  const handlePageChange = (page) => {
+    if (page < 0 || page >= totalPages) return;
+    loadStudents(page);
+  };
 
   const normalizedSearchTerm = searchTerm.trim().toLowerCase();
   const filteredStudents = students.filter((studentItem) => {
@@ -78,8 +95,8 @@ function Students() {
   const studentListTitle = isLoading
     ? "Student List"
     : normalizedSearchTerm
-      ? `Student List (${filteredStudents.length} of ${students.length})`
-      : `Student List (${students.length})`;
+      ? `Student List (${filteredStudents.length} of ${totalElements})`
+      : `Student List (${totalElements})`;
 
   const clearSearch = () => {
     setSearchTerm("");
@@ -130,7 +147,7 @@ function Students() {
       }
 
       resetForm();
-      await loadStudents();
+      await loadStudents(currentPage);
     } catch (error) {
       alert(error.message);
     }
@@ -164,11 +181,60 @@ function Students() {
         resetForm();
       }
 
-      await loadStudents();
+      // If the current page would be empty after deletion, go back one page
+      const isLastItemOnPage = students.length === 1;
+      const targetPage =
+        isLastItemOnPage && currentPage > 0 ? currentPage - 1 : currentPage;
+
+      await loadStudents(targetPage);
     } catch (error) {
       alert(error.message);
     }
   };
+
+  function buildPageNumbers() {
+    const pages = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible + 2) {
+      for (let i = 0; i < totalPages; i++) {
+        pages.push(i);
+      }
+      return pages;
+    }
+
+    // Always show first page
+    pages.push(0);
+
+    let start = Math.max(1, currentPage - 1);
+    let end = Math.min(totalPages - 2, currentPage + 1);
+
+    // Adjust window to always show `maxVisible` middle pages if possible
+    if (end - start < maxVisible - 3) {
+      if (start === 1) {
+        end = Math.min(totalPages - 2, start + maxVisible - 3);
+      } else {
+        start = Math.max(1, end - maxVisible + 3);
+      }
+    }
+
+    if (start > 1) {
+      pages.push("ellipsis-start");
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    if (end < totalPages - 2) {
+      pages.push("ellipsis-end");
+    }
+
+    // Always show last page
+    pages.push(totalPages - 1);
+
+    return pages;
+  }
 
   return (
     <>
@@ -392,6 +458,54 @@ function Students() {
               </table>
             )}
           </div>
+
+          {totalPages > 1 && (
+            <nav className="pagination" aria-label="Student list pagination">
+              <button
+                className="btn secondary btn-compact pagination-btn"
+                type="button"
+                disabled={currentPage === 0}
+                onClick={() => handlePageChange(currentPage - 1)}
+              >
+                ← Previous
+              </button>
+
+              <div className="pagination-pages">
+                {buildPageNumbers().map((item) => {
+                  if (typeof item === "string") {
+                    return (
+                      <span key={item} className="pagination-ellipsis">
+                        …
+                      </span>
+                    );
+                  }
+
+                  return (
+                    <button
+                      key={item}
+                      type="button"
+                      className={`pagination-page${
+                        item === currentPage ? " pagination-page-active" : ""
+                      }`}
+                      onClick={() => handlePageChange(item)}
+                      aria-current={item === currentPage ? "page" : undefined}
+                    >
+                      {item + 1}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                className="btn secondary btn-compact pagination-btn"
+                type="button"
+                disabled={currentPage >= totalPages - 1}
+                onClick={() => handlePageChange(currentPage + 1)}
+              >
+                Next →
+              </button>
+            </nav>
+          )}
         </section>
 
         {selectedMarksStudent && (
@@ -408,4 +522,3 @@ function Students() {
 }
 
 export default Students;
-

@@ -1141,3 +1141,74 @@ tbody tr:last-child td {
   border-color: #bfe0e2 !important;
 }
 
+/* ==========================================================================
+   Pagination Controls
+   ========================================================================== */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.pagination-pages {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pagination-page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.2rem;
+  height: 2.2rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+    border-color var(--transition-fast), color var(--transition-fast),
+    transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.pagination-page:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  transform: translateY(-1px);
+}
+
+.pagination-page-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.18);
+  pointer-events: none;
+}
+
+.pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2.2rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 1rem;
+  user-select: none;
+}
+
+.pagination-btn {
+  font-size: 0.88rem;
+}
+

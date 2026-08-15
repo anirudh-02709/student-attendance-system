@@ -7,6 +7,8 @@ import com.student.attendance.exception.StudentNotFoundException;
 import com.student.attendance.model.Role;
 import com.student.attendance.model.Student;
 import com.student.attendance.repository.StudentRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,6 +46,12 @@ public class StudentServiceImpl implements StudentService {
     public List<Student> getAllStudents() {
         String facultyUsername = getCurrentFacultyUsername();
         return studentRepository.findByFacultyUsername(facultyUsername);
+    }
+
+    @Override
+    public Page<Student> getAllStudents(Pageable pageable) {
+        String facultyUsername = getCurrentFacultyUsername();
+        return studentRepository.findByFacultyUsername(facultyUsername, pageable);
     }
 
     @Override

@@ -1,9 +1,12 @@
 package com.student.attendance.controller;
 
+import com.student.attendance.dto.StudentPageResponse;
 import com.student.attendance.dto.StudentProfileResponse;
 import com.student.attendance.model.Student;
 import com.student.attendance.service.StudentService;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +33,24 @@ public class StudentController {
         return studentService.getAllStudents().stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    @GetMapping("/page")
+    public StudentPageResponse getStudentsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        page = Math.max(page, 0);
+        size = Math.max(1, Math.min(size, 100));
+        Page<Student> studentPage = studentService.getAllStudents(PageRequest.of(page, size));
+        List<StudentProfileResponse> students = studentPage.getContent().stream()
+                .map(this::toResponse)
+                .toList();
+        return new StudentPageResponse(
+                students,
+                studentPage.getNumber(),
+                studentPage.getSize(),
+                studentPage.getTotalElements(),
+                studentPage.getTotalPages());
     }
 
     @GetMapping("/{usn}")

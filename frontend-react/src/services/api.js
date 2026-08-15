@@ -87,6 +87,12 @@ export async function getStudents() {
   return await requestJson(`${API_BASE_URL}/students`);
 }
 
+export async function getStudentsPaginated(page = 0, size = 10) {
+  return await requestJson(
+    `${API_BASE_URL}/students/page?page=${page}&size=${size}`
+  );
+}
+
 export async function addStudent(student) {
   return await requestJson(`${API_BASE_URL}/students`, {
     method: "POST",
