@@ -1,10 +1,22 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import "../css/style.css";
 import { login } from "../services/api";
 
 function Login() {
   const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+
+  if (token && (role === "FACULTY" || role === "STUDENT")) {
+    return (
+      <Navigate
+        to={role === "STUDENT" ? "/student-dashboard" : "/dashboard"}
+        replace
+      />
+    );
+  }
 
   const [loginMode, setLoginMode] = useState("faculty");
   const [username, setUsername] = useState("");

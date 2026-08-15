@@ -4,6 +4,7 @@ import com.student.attendance.dto.StudentPageResponse;
 import com.student.attendance.dto.StudentProfileResponse;
 import com.student.attendance.model.Student;
 import com.student.attendance.service.StudentService;
+import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,7 +25,7 @@ public class StudentController {
     }
 
     @PostMapping // handles HTTP POST requests
-    public StudentProfileResponse addStudent(@RequestBody Student student) {
+    public StudentProfileResponse addStudent(@Valid @RequestBody Student student) {
         return toResponse(studentService.addStudent(student));
     }
 
@@ -60,7 +61,7 @@ public class StudentController {
 
     @PutMapping("/{usn}")
     public StudentProfileResponse updateStudent(@PathVariable String usn,
-            @RequestBody Student student) {
+            @Valid @RequestBody Student student) {
         return toResponse(studentService.updateStudent(usn, student));
     }
 

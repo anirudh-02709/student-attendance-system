@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.student.attendance.auth.AuthService;
 import com.student.attendance.auth.dto.LoginRequest;
 import com.student.attendance.auth.dto.LoginResponse;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,7 +24,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         try {
             return ResponseEntity.ok(authService.login(request));
         } catch (BadCredentialsException exception) {

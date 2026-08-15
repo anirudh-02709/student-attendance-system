@@ -16,6 +16,7 @@ import com.student.attendance.auth.dto.StudentLoginRequest;
 import com.student.attendance.dto.StudentAttendanceSummaryResponse;
 import com.student.attendance.dto.StudentProfileResponse;
 import com.student.attendance.service.StudentDashboardService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/student")
@@ -25,13 +26,13 @@ public class StudentAuthController {
     private final StudentDashboardService studentDashboardService;
 
     public StudentAuthController(StudentAuthService studentAuthService,
-                                 StudentDashboardService studentDashboardService) {
+                                  StudentDashboardService studentDashboardService) {
         this.studentAuthService = studentAuthService;
         this.studentDashboardService = studentDashboardService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody StudentLoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody StudentLoginRequest request) {
         try {
             return ResponseEntity.ok(studentAuthService.login(request));
         } catch (BadCredentialsException exception) {
