@@ -242,3 +242,66 @@ export async function updateStudentMarks(usn, marks) {
     }
   );
 }
+
+// ---------------------- ANNOUNCEMENTS ----------------------
+
+export async function getAnnouncements(page = 0, size = 5) {
+  return await requestJson(
+    `${API_BASE_URL}/announcements?page=${page}&size=${size}&sort=createdAt,desc`
+  );
+}
+
+export async function addAnnouncement(announcement) {
+  const payload = {
+    title: announcement.title ? announcement.title.trim() : "",
+    description: announcement.description ? announcement.description.trim() : "",
+    ...(announcement.expiryDate && announcement.expiryDate.trim()
+      ? { expiryDate: announcement.expiryDate.trim() }
+      : {}),
+  };
+
+  return await requestJson(`${API_BASE_URL}/announcements`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateAnnouncement(id, announcement) {
+  const payload = {
+    title: announcement.title ? announcement.title.trim() : "",
+    description: announcement.description ? announcement.description.trim() : "",
+    expiryDate:
+      announcement.expiryDate && announcement.expiryDate.trim()
+        ? announcement.expiryDate.trim()
+        : null,
+  };
+
+  return await requestJson(
+    `${API_BASE_URL}/announcements/${encodeURIComponent(id)}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+}
+
+export async function deleteAnnouncement(id) {
+  return await requestJson(
+    `${API_BASE_URL}/announcements/${encodeURIComponent(id)}`,
+    {
+      method: "DELETE",
+    }
+  );
+}
+
+export async function getStudentAnnouncements(page = 0, size = 5) {
+  return await requestJson(
+    `${API_BASE_URL}/announcements/student?page=${page}&size=${size}&sort=createdAt,desc`
+  );
+}

@@ -81,6 +81,21 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/attendance/**")
                         .hasRole(Role.FACULTY.name())
 
+                        .requestMatchers(HttpMethod.POST, "/announcements")
+                        .hasRole(Role.FACULTY.name())
+
+                        .requestMatchers(HttpMethod.GET, "/announcements")
+                        .hasRole(Role.FACULTY.name())
+
+                        .requestMatchers(HttpMethod.PUT, "/announcements/**")
+                        .hasRole(Role.FACULTY.name())
+
+                        .requestMatchers(HttpMethod.DELETE, "/announcements/**")
+                        .hasRole(Role.FACULTY.name())
+
+                        .requestMatchers(HttpMethod.GET, "/announcements/student")
+                        .hasRole(Role.STUDENT.name())
+
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
 
                         .anyRequest().authenticated())

@@ -4,6 +4,7 @@ import { getStudentDashboard, markAttendance } from "../services/api";
 import StudentNavbar from "../components/StudentNavbar";
 import Footer from "../components/Footer";
 import LoadingState from "../components/LoadingState";
+import StudentAnnouncementsSection from "../components/StudentAnnouncementsSection";
 
 function StudentDashboard() {
   const [student, setStudent] = useState(null);
@@ -13,22 +14,22 @@ function StudentDashboard() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    async function loadDashboard() {
+      try {
+        const data = await getStudentDashboard();
+
+        setStudent(data.student);
+        setAttendance(data.attendance);
+        setMarks(data.marks || {});
+        setIsLoading(false);
+      } catch (error) {
+        console.error(error);
+        setIsLoading(false);
+      }
+    }
+
     loadDashboard();
   }, []);
-
-  async function loadDashboard() {
-    try {
-      const data = await getStudentDashboard();
-
-      setStudent(data.student);
-      setAttendance(data.attendance);
-      setMarks(data.marks || {});
-      setIsLoading(false);
-    } catch (error) {
-      console.error(error);
-      setIsLoading(false);
-    }
-  }
 
   async function handleAttendance() {
     setStatusMessage("");
@@ -45,7 +46,10 @@ function StudentDashboard() {
 
       setStatusMessage("Attendance marked successfully.");
 
-      loadDashboard();
+      const data = await getStudentDashboard();
+      setStudent(data.student);
+      setAttendance(data.attendance);
+      setMarks(data.marks || {});
     } catch (error) {
       setStatusMessage(error.message);
     }
@@ -108,6 +112,8 @@ function StudentDashboard() {
           </article>
         </section>
 
+        <StudentAnnouncementsSection />
+
         <section className="card table-card" style={{ marginBottom: "1.2rem" }}>
           <div className="section-heading">
             <h2>Academic Marks</h2>
@@ -146,6 +152,7 @@ function StudentDashboard() {
             )}
           </div>
         </section>
+
 
         <section className="card actions-card">
           <div className="section-heading">

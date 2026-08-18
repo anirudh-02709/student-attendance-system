@@ -5,6 +5,7 @@ import { getDashboard } from "../services/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import LoadingState from "../components/LoadingState";
+import AnnouncementsSection from "../components/AnnouncementsSection";
 
 function Dashboard() {
   const [dashboard, setDashboard] = useState({
@@ -74,7 +75,7 @@ function Dashboard() {
           </section>
         )}
 
-        <section className="card actions-card">
+        <section className="card actions-card" style={{ marginBottom: "2rem" }}>
           <div className="section-heading">
             <h2>Quick Actions</h2>
             <p>Move between student management and attendance marking quickly.</p>
@@ -92,6 +93,8 @@ function Dashboard() {
             </Link>
           </div>
         </section>
+
+        <AnnouncementsSection />
       </main>
       <Footer />
     </>
@@ -99,3 +102,4 @@ function Dashboard() {
 }
 
 export default Dashboard;
+
