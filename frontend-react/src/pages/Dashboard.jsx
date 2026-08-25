@@ -6,6 +6,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import LoadingState from "../components/LoadingState";
 import AnnouncementsSection from "../components/AnnouncementsSection";
+import HolidaySection from "../components/HolidaySection";
 
 function Dashboard() {
   const [dashboard, setDashboard] = useState({
@@ -95,6 +96,8 @@ function Dashboard() {
         </section>
 
         <AnnouncementsSection />
+
+        <HolidaySection />
       </main>
       <Footer />
     </>

@@ -1,10 +1,19 @@
 import { useEffect, useState } from "react";
 import "../css/style.css";
-import { getStudentDashboard, markAttendance } from "../services/api";
+import { getStudentDashboard, markAttendance, getHolidays } from "../services/api";
 import StudentNavbar from "../components/StudentNavbar";
 import Footer from "../components/Footer";
 import LoadingState from "../components/LoadingState";
 import StudentAnnouncementsSection from "../components/StudentAnnouncementsSection";
+import StudentHolidaySection from "../components/StudentHolidaySection";
+
+function getTodayDateString() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
 
 function StudentDashboard() {
   const [student, setStudent] = useState(null);
@@ -13,23 +22,40 @@ function StudentDashboard() {
   const [statusMessage, setStatusMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
+  const [holidays, setHolidays] = useState([]);
+  const [holidaysLoaded, setHolidaysLoaded] = useState(false);
+  const [holidayLoadError, setHolidayLoadError] = useState(false);
+
   useEffect(() => {
     async function loadDashboard() {
       try {
-        const data = await getStudentDashboard();
+        const [dashData, holidayResult] = await Promise.all([
+          getStudentDashboard(),
+          getHolidays()
+            .then((data) => ({ data, error: false }))
+            .catch(() => ({ data: [], error: true })),
+        ]);
 
-        setStudent(data.student);
-        setAttendance(data.attendance);
-        setMarks(data.marks || {});
-        setIsLoading(false);
+        setStudent(dashData.student);
+        setAttendance(dashData.attendance);
+        setMarks(dashData.marks || {});
+
+        const items = Array.isArray(holidayResult.data) ? holidayResult.data : [];
+        setHolidays(items);
+        setHolidaysLoaded(true);
+        setHolidayLoadError(holidayResult.error);
       } catch (error) {
         console.error(error);
+      } finally {
         setIsLoading(false);
       }
     }
 
     loadDashboard();
   }, []);
+
+  const todayStr = getTodayDateString();
+  const todayHoliday = holidays.find((h) => h.date === todayStr) || null;
 
   async function handleAttendance() {
     setStatusMessage("");
@@ -114,6 +140,8 @@ function StudentDashboard() {
 
         <StudentAnnouncementsSection />
 
+        <StudentHolidaySection holidays={holidays} isLoaded={holidaysLoaded} loadError={holidayLoadError} />
+
         <section className="card table-card" style={{ marginBottom: "1.2rem" }}>
           <div className="section-heading">
             <h2>Academic Marks</h2>
@@ -157,14 +185,45 @@ function StudentDashboard() {
         <section className="card actions-card">
           <div className="section-heading">
             <h2>Mark Attendance</h2>
-            <p>Use your current location to record attendance instantly.</p>
+            <p>
+              {todayHoliday
+                ? `Attendance is unavailable today — ${todayHoliday.name}.`
+                : "Use your current location to record attendance instantly."}
+            </p>
           </div>
 
-          <div className="button-row">
-            <button className="btn primary" onClick={handleAttendance}>
-              Mark Attendance
-            </button>
-          </div>
+          {todayHoliday ? (
+            <div className="status-message holiday-attendance-notice" role="status">
+              <span>🏖️</span>
+              <span>
+                Today is <strong>{todayHoliday.name}</strong>
+                {todayHoliday.description ? ` — ${todayHoliday.description}` : ""}
+                . Attendance marking is not available on holidays.
+              </span>
+            </div>
+          ) : (
+            <>
+              {holidayLoadError && (
+                <div
+                  className="status-message holiday-load-warning"
+                  role="alert"
+                  style={{ marginBottom: "0.75rem", marginTop: 0 }}
+                >
+                  <span>⚠</span>
+                  <span>
+                    Holiday calendar could not be loaded. If today is a declared
+                    holiday, the server will still prevent attendance from being
+                    recorded.
+                  </span>
+                </div>
+              )}
+              <div className="button-row">
+                <button className="btn primary" onClick={handleAttendance}>
+                  Mark Attendance
+                </button>
+              </div>
+            </>
+          )}
 
           {statusMessage && <p className="status-message">{statusMessage}</p>}
         </section>

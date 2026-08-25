@@ -305,3 +305,41 @@ export async function getStudentAnnouncements(page = 0, size = 5) {
     `${API_BASE_URL}/announcements/student?page=${page}&size=${size}&sort=createdAt,desc`
   );
 }
+
+// ---------------------- HOLIDAYS ----------------------
+
+export async function getHolidays() {
+  return await requestJson(`${API_BASE_URL}/holidays`);
+}
+
+export async function addHoliday(holiday) {
+  return await requestJson(`${API_BASE_URL}/holidays`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(holiday),
+  });
+}
+
+export async function updateHoliday(id, holiday) {
+  return await requestJson(
+    `${API_BASE_URL}/holidays/${encodeURIComponent(id)}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(holiday),
+    }
+  );
+}
+
+export async function deleteHoliday(id) {
+  return await requestJson(
+    `${API_BASE_URL}/holidays/${encodeURIComponent(id)}`,
+    {
+      method: "DELETE",
+    }
+  );
+}

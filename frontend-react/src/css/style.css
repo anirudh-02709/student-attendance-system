@@ -1338,3 +1338,153 @@ tbody tr:last-child td {
   }
 }
 
+/* ==========================================================================
+   Holiday Management Section & Card Styles
+   ========================================================================== */
+
+.holidays-section {
+  margin-top: 1.5rem;
+}
+
+.holidays-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.holiday-card {
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.1rem 1.25rem;
+  transition: background-color var(--transition-fast),
+    border-color var(--transition-fast), transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.holiday-card:hover {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.holiday-card-editing {
+  border-color: var(--accent) !important;
+  background: var(--accent-soft) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14) !important;
+}
+
+.holiday-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.holiday-header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.holiday-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.holiday-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+.holiday-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.holiday-badge-upcoming {
+  background: #ecfeff;
+  color: var(--success);
+  border: 1px solid #bfe0e2;
+  font-size: 0.78rem;
+  padding: 0.2rem 0.55rem;
+}
+
+.holiday-badge-past {
+  background: #f1f5f9;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  padding: 0.2rem 0.55rem;
+}
+
+.holiday-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.holiday-description {
+  margin: 0;
+  color: #334155;
+  font-size: 0.94rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media (max-width: 760px) {
+  .holiday-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .holiday-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* ==========================================================================
+   Holiday Attendance Notice (Student Dashboard)
+   ========================================================================== */
+
+.holiday-attendance-notice {
+  background: #fffbeb !important;
+  color: #92400e !important;
+  border: 1px solid #fde68a !important;
+  box-shadow: 0 6px 16px rgba(146, 64, 14, 0.06);
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.94rem;
+  line-height: 1.5;
+}
+
+.holiday-attendance-notice strong {
+  color: #78350f;
+}
+
+.holiday-load-warning {
+  background: #fffbeb !important;
+  color: #92400e !important;
+  border: 1px solid #fde68a !important;
+  box-shadow: 0 4px 12px rgba(146, 64, 14, 0.05);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+

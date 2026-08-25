@@ -3,11 +3,14 @@ package com.student.attendance.service;
 import com.student.attendance.dto.AttendanceLocationRequest;
 import com.student.attendance.exception.AttendanceNotFoundException;
 import com.student.attendance.exception.DuplicateAttendanceException;
+import com.student.attendance.exception.HolidayAttendanceException;
 import com.student.attendance.exception.InvalidLocationException;
 import com.student.attendance.model.Attendance;
 import com.student.attendance.model.AttendanceStatus;
+import com.student.attendance.model.Holiday;
 import com.student.attendance.model.Student;
 import com.student.attendance.repository.AttendanceRepository;
+import com.student.attendance.repository.HolidayRepository;
 import com.student.attendance.repository.StudentRepository;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -19,12 +22,14 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AttendanceServiceImpl implements AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
     private final StudentRepository studentRepository;
+    private final HolidayRepository holidayRepository;
 
     // Replace with your college coordinates
     private static final double COLLEGE_LATITUDE = 12.892763130939501;
@@ -33,9 +38,13 @@ public class AttendanceServiceImpl implements AttendanceService {
     // Allowed radius in meters
     private static final double ALLOWED_RADIUS = 100.0;
 
-    public AttendanceServiceImpl(AttendanceRepository attendanceRepository, StudentRepository studentRepository) {
+    public AttendanceServiceImpl(
+            AttendanceRepository attendanceRepository,
+            StudentRepository studentRepository,
+            HolidayRepository holidayRepository) {
         this.attendanceRepository = attendanceRepository;
         this.studentRepository = studentRepository;
+        this.holidayRepository = holidayRepository;
     }
 
     @Override
@@ -56,13 +65,19 @@ public class AttendanceServiceImpl implements AttendanceService {
             }
         }
 
+        LocalDate effectiveDate = requiresLocationVerification
+                ? LocalDate.now()
+                : (request.getDate() != null ? request.getDate() : LocalDate.now());
+
+        Optional<Holiday> holiday = holidayRepository.findByDate(effectiveDate);
+        if (holiday.isPresent()) {
+            throw new HolidayAttendanceException(
+                    "Cannot mark attendance on holiday: " + holiday.get().getName() + " (" + effectiveDate + ")");
+        }
+
         Attendance attendance = new Attendance();
         attendance.setStudentUsn(studentUsn);
-        attendance.setDate(
-                request.getDate() != null
-                        ? request.getDate()
-                        : LocalDate.now()
-        );
+        attendance.setDate(effectiveDate);
         attendance.setMarkedAt(LocalDateTime.now());
         attendance.setStatus(request.getStatus() != null ? request.getStatus() : AttendanceStatus.Present);
         attendance.setLatitude(request.getLatitude());
@@ -182,6 +197,14 @@ public class AttendanceServiceImpl implements AttendanceService {
         if (!studentBelongsToCurrentFaculty(existingAttendance.getStudentUsn())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "You do not have permission to update this attendance record");
+        }
+
+        if (updatedAttendance.getDate() != null) {
+            Optional<Holiday> holiday = holidayRepository.findByDate(updatedAttendance.getDate());
+            if (holiday.isPresent()) {
+                throw new HolidayAttendanceException(
+                        "Cannot mark attendance on holiday: " + holiday.get().getName() + " (" + updatedAttendance.getDate() + ")");
+            }
         }
 
         existingAttendance.setStudentUsn(updatedAttendance.getStudentUsn());

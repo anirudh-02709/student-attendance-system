@@ -35,4 +35,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest()
                 .body(Map.of("message", exception.getMessage()));
     }
+
+    @ExceptionHandler(DuplicateHolidayException.class)
+    public ResponseEntity<Map<String, String>> handleDuplicateHoliday(DuplicateHolidayException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("message", exception.getMessage()));
+    }
+
+    @ExceptionHandler(HolidayNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleHolidayNotFound(HolidayNotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("message", exception.getMessage()));
+    }
+
+    @ExceptionHandler(HolidayAttendanceException.class)
+    public ResponseEntity<Map<String, String>> handleHolidayAttendance(HolidayAttendanceException exception) {
+        return ResponseEntity.badRequest()
+                .body(Map.of("message", exception.getMessage()));
+    }
 }
