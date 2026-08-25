@@ -7,8 +7,10 @@ function Navbar() {
 
   const navItems = [
     { to: "/dashboard", label: "Dashboard" },
-    { to: "/students", label: "Manage Students" },
-    { to: "/attendance", label: "Mark Attendance" },
+    { to: "/students", label: "Students" },
+    { to: "/attendance", label: "Attendance" },
+    { to: "/announcements", label: "Announcements" },
+    { to: "/holidays", label: "Holidays" },
   ];
 
   return (

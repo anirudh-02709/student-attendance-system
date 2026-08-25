@@ -5,8 +5,6 @@ import { getDashboard } from "../services/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import LoadingState from "../components/LoadingState";
-import AnnouncementsSection from "../components/AnnouncementsSection";
-import HolidaySection from "../components/HolidaySection";
 
 function Dashboard() {
   const [dashboard, setDashboard] = useState({
@@ -76,10 +74,10 @@ function Dashboard() {
           </section>
         )}
 
-        <section className="card actions-card" style={{ marginBottom: "2rem" }}>
+        <section className="card actions-card">
           <div className="section-heading">
             <h2>Quick Actions</h2>
-            <p>Move between student management and attendance marking quickly.</p>
+            <p>Direct shortcuts to key faculty management workflows.</p>
           </div>
 
           <div className="button-row">
@@ -92,12 +90,18 @@ function Dashboard() {
               <span className="btn-icon">✓</span>
               <span>Mark Attendance</span>
             </Link>
+
+            <Link className="btn secondary action-card-btn" to="/announcements">
+              <span className="btn-icon">📢</span>
+              <span>Manage Announcements</span>
+            </Link>
+
+            <Link className="btn secondary action-card-btn" to="/holidays">
+              <span className="btn-icon">📅</span>
+              <span>Manage Holidays</span>
+            </Link>
           </div>
         </section>
-
-        <AnnouncementsSection />
-
-        <HolidaySection />
       </main>
       <Footer />
     </>
