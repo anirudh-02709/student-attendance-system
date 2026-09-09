@@ -20,6 +20,10 @@ public class FacultyDataInitializer {
                                                 @Value("${app.faculty.initial-password}") String password) {
         return args -> {
             if (facultyRepository.count() == 0) {
+                if (password == null || password.isBlank()) {
+                    throw new IllegalStateException(
+                            "Cannot seed initial faculty account: INITIAL_FACULTY_PASSWORD is required and must not be blank.");
+                }
                 facultyService.register(new Faculty(null, "System Administrator", username, password, Role.FACULTY));
             }
         };

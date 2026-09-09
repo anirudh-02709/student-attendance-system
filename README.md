@@ -269,7 +269,7 @@ The backend implements stateless Spring Security with JWT authentication.
 `FacultyDataInitializer` runs on application startup. If the `faculties` collection has zero records, an initial account is seeded:
 - **Name:** `System Administrator`
 - **Username:** Value of `app.faculty.initial-username` (default: `admin`)
-- **Password:** Value of `app.faculty.initial-password` (see `application.properties` for the development default)
+- **Password:** Supplied via the `INITIAL_FACULTY_PASSWORD` environment variable (required on initial startup)
 - **Role:** `FACULTY`
 
 ### Endpoint Authorization Rules
@@ -399,16 +399,19 @@ All protected endpoints require the header `Authorization: Bearer <token>`.
 
 ### Backend Configuration (`backend/attendance/src/main/resources/application.properties`)
 
-The application supports configuration overrides through standard environment variables:
+The application requires configuration through environment variables or JVM system properties. No secrets or credentials are hardcoded in the repository. A reference template is provided in `.env.example` at the repository root.
 
-| Property | Default Value | Environment Variable Override | Description |
-| :--- | :--- | :--- | :--- |
-| `spring.application.name` | `attendance` | — | Application identifier |
-| `spring.mongodb.uri` | Configured connection string | `SPRING_DATA_MONGODB_URI` | MongoDB connection URI |
-| `app.jwt.secret` | *(Base64-encoded key)* | `JWT_SECRET` | Base64-encoded secret key for signing JWTs. **Change this in production.** |
-| `app.jwt.expiration-ms` | `3600000` (1 hour) | `JWT_EXPIRATION_MS` | JWT expiration duration in milliseconds |
-| `app.faculty.initial-username` | `admin` | `INITIAL_FACULTY_USERNAME` | Seed faculty username created on clean start |
-| `app.faculty.initial-password` | *(see `application.properties`)* | `INITIAL_FACULTY_PASSWORD` | Seed faculty password. **Change this immediately after first login.** |
+> [!NOTE]
+> Spring Boot does not automatically read `.env` files out of the box. Variables must be set as shell environment variables in your terminal, configured in your IDE run configuration, or passed as system properties.
+
+| Property | Default Value | Environment Variable | Required? | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `spring.application.name` | `attendance` | — | No | Application identifier |
+| `spring.mongodb.uri` | — | `MONGODB_URI` | **Yes** | MongoDB connection URI (e.g. `mongodb://localhost:27017/attendance_db` or Atlas URI) |
+| `app.jwt.secret` | — | `JWT_SECRET` | **Yes** | Base64-encoded secret key (minimum 256 bits) for HMAC-SHA256 signing |
+| `app.jwt.expiration-ms` | `3600000` (1 hour) | `JWT_EXPIRATION_MS` | No | JWT expiration duration in milliseconds |
+| `app.faculty.initial-username` | `admin` | `INITIAL_FACULTY_USERNAME` | No | Seed faculty username created on clean start |
+| `app.faculty.initial-password` | — | `INITIAL_FACULTY_PASSWORD` | **Yes** | Seed faculty password for initial administrator creation. |
 
 ### CORS Configuration (`CorsConfig.java`)
 The backend accepts cross-origin requests from:
@@ -434,7 +437,28 @@ The backend accepts cross-origin requests from:
    cd backend/attendance
    ```
 
-2. Verify compilation and dependencies using the Maven wrapper:
+2. Set the required environment variables in your terminal session before launching the app:
+   - **On Linux / macOS:**
+     ```bash
+     export MONGODB_URI="mongodb://localhost:27017/attendance_db"
+     export JWT_SECRET="your-base64-encoded-jwt-secret"
+     export INITIAL_FACULTY_PASSWORD="your-secure-password"
+     ```
+     *(Note: If you maintain a local `.env` file, you can export it into your shell with `export $(grep -v '^#' .env | xargs)`).*
+   - **On Windows (PowerShell):**
+     ```powershell
+     $env:MONGODB_URI="mongodb://localhost:27017/attendance_db"
+     $env:JWT_SECRET="your-base64-encoded-jwt-secret"
+     $env:INITIAL_FACULTY_PASSWORD="your-secure-password"
+     ```
+   - **On Windows (Command Prompt):**
+     ```cmd
+     set MONGODB_URI=mongodb://localhost:27017/attendance_db
+     set JWT_SECRET=your-base64-encoded-jwt-secret
+     set INITIAL_FACULTY_PASSWORD=your-secure-password
+     ```
+
+3. Verify compilation and dependencies using the Maven wrapper:
    - **On Linux / macOS:**
      ```bash
      ./mvnw clean compile
@@ -444,7 +468,7 @@ The backend accepts cross-origin requests from:
      mvnw.cmd clean compile
      ```
 
-3. Start the Spring Boot application:
+4. Start the Spring Boot application:
    - **On Linux / macOS:**
      ```bash
      ./mvnw spring-boot:run
