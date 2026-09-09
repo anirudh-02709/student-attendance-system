@@ -4,6 +4,7 @@ import com.student.attendance.dto.AttendanceLocationRequest;
 import com.student.attendance.dto.AttendanceResponse;
 import com.student.attendance.model.Attendance;
 import com.student.attendance.model.Role;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import com.student.attendance.service.AttendanceService;
@@ -25,7 +26,7 @@ public class AttendanceController {
 
     @PostMapping
     public ResponseEntity<?> markAttendance(
-            @RequestBody AttendanceLocationRequest request,
+            @Valid @RequestBody AttendanceLocationRequest request,
             Authentication authentication) {
 
         boolean isStudent = authentication.getAuthorities().stream()
